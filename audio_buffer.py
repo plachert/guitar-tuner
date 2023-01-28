@@ -29,14 +29,11 @@ class AudioBuffer:
     def start(self):
         self.thread.start()
         
-    def _add_frame(self, frame: np.ndarray):
-        self.frames.append(frame)
-        
     def _collect_data(self):
         while True:
             raw_data = self.stream.read(self.CHUNK)
             decoded = np.frombuffer(raw_data, np.int16)
-            self._add_frame(decoded)
+            self.frames.append(decoded)
 
 
 if __name__ == "__main__":
