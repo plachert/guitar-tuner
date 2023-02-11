@@ -21,13 +21,20 @@ class AudioBuffer:
             )
         self.thread = threading.Thread(target=self._collect_data, daemon=True)
         self.frames = deque(maxlen=self.chunks)
-    
-    @property
-    def audio(self):
+
+    def __call__(self):
         return np.concatenate(self.frames)
+    
+    def __len__(self):
+        return self.CHUNK * self.chunks
+    
+    def is_full(self):
+        return len(self.frames) == self.chunks
     
     def start(self):
         self.thread.start()
+        while not self.is_full(): # wait until the buffer is filled
+            sleep(0.1)
         
     def _collect_data(self):
         while True:
@@ -39,5 +46,4 @@ class AudioBuffer:
 if __name__ == "__main__":
     audio_buffer = AudioBuffer()
     audio_buffer.start()
-    sleep(0.5) # wait until the buffer is not empty
-    print(audio_buffer.audio.shape)
+    print(audio_buffer().shape)
